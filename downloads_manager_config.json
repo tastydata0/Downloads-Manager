@@ -1,0 +1,52 @@
+{
+  "USER_DIR_PATH": "C:\\Users\\%username%\\",
+  "DOWNLOADS_PATH": "%user_dir%Downloads\\",
+  "paths": [
+    {
+      "label" : "Images",
+      "path" : "%user_dir%OneDrive\\Изображения\\Downloaded",
+      "extensions" : ["jpg", "jpeg", "png", "bmp", "ico"]
+    },
+    {
+      "label" : "Documents",
+      "path" : "%user_dir%OneDrive\\Documents\\Downloaded",
+      "extensions" : ["pdf", "csv", "txt", "doc", "docx", "ppt", "pptx", "xls", "xlsx",
+                        "accdb", "db", "html"]
+    },
+    {
+      "label" : "Videos",
+      "path" : "%user_dir%Videos\\Downloaded",
+      "extensions" : ["mp4", "avi", "mkv", "m4a"]
+    },
+    {
+      "label" : "Music",
+      "path" : "%user_dir%Music\\Downloaded",
+      "extensions" : ["mp3", "ogg", "wav"]
+    },
+    {
+      "label" : "Archives",
+      "path" : "%downloads_dir%Archives",
+      "extensions" : ["zip", "rar", "7z"]
+    },
+    {
+      "label" : "Executable",
+      "path" : "%downloads_dir%Exe-files",
+      "extensions" : ["exe", "msi", "jar"]
+    },
+    {
+      "label" : "Temp",
+      "path" : "%downloads_dir%Temp",
+      "extensions" : ["torrent", "TEMP", "osz", "osk"]
+    },
+    {
+      "label" : "Programming",
+      "path" : "%downloads_dir%Programming-files",
+      "extensions" : ["cpp", "c", "h", "hpp", "java", "py", "dll", "dart", "rb"]
+    },
+    {
+      "label" : "Misc",
+      "path" : "%downloads_dir%Misc",
+      "extensions" : ["ini", "ics", "vsix", "ttf", "tur"]
+    }
+  ]
+}
