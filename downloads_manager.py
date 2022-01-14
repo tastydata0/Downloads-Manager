@@ -4,39 +4,18 @@ from os import listdir, remove, mkdir
 import getpass
 from json import loads
 
+SCRIPT_NAME = "Downloads Manager"
+
+
+def print_with_script_name(message, end='\n'):
+    print(f'[{SCRIPT_NAME}]: {message}', end=end)
+
+
 dir_path = str(__file__).replace('downloads_manager.py', '')
 username = getpass.getuser()
 user_dir = None
 
-DOWNLOADS_PATH = f'{user_dir}Downloads'
-
-PICTURES_PATH = f'{user_dir}OneDrive\\Изображения\\Downloaded'
-PICTURES_EXTENSIONS = ('jpg', 'jpeg', 'png', 'bmp', 'ico')
-
-DOCUMENTS_PATH = f'{user_dir}OneDrive\\Documents\\Downloaded'
-DOCUMENTS_EXTENSIONS = ('pdf', 'csv', 'txt', 'doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx',
-                        'accdb', 'db', 'html')
-
-VIDEOS_PATH = f'{user_dir}Videos\\Downloaded'
-VIDEOS_EXTENSIONS = ('mp4', 'avi', 'mkv', 'm4a')
-
-MUSIC_PATH = f'{user_dir}Music\\Downloaded'
-MUSIC_EXTENSIONS = ('mp3', 'ogg', 'wav')
-
-ARCHIVES_PATH = f'{user_dir}Downloads\\Archives'
-ARCHIVES_EXTENSIONS = ('zip', 'rar', '7z')
-
-EXE_PATH = f'{user_dir}Downloads\\Exe-files'
-EXE_EXTENSIONS = ('exe', 'msi', 'jar')
-
-TEMP_PATH = f'{user_dir}Downloads\\Temp'
-TEMP_EXTENSIONS = ('torrent', 'TEMP', 'osz', 'osk')
-
-PROGRAMMING_PATH = f'{user_dir}Downloads\\Programming-files'
-PROGRAMMING_EXTENSIONS = ('cpp', 'c', 'h', 'hpp', 'java', 'py', 'dll', 'dart', 'rb')
-
-MISC_PATH = f'{user_dir}Downloads\\Misc'
-MISC_EXTENSIONS = ('ini', 'ics', 'vsix', 'ttf', 'tur')
+DOWNLOADS_PATH = dict()
 
 # List of files that have already been checked
 ignored_files = []
@@ -46,10 +25,8 @@ with open(dir_path+'ignored_files.txt', encoding='UTF-8') as ign_f:
     for line in ign_f:
         ignored_files.append(line.strip())
 
-PATHS_AND_EXTENSIONS = ((PICTURES_PATH, PICTURES_EXTENSIONS), (DOCUMENTS_PATH, DOCUMENTS_EXTENSIONS),
-                        (VIDEOS_PATH, VIDEOS_EXTENSIONS), (MUSIC_PATH, MUSIC_EXTENSIONS),
-                        (ARCHIVES_PATH, ARCHIVES_EXTENSIONS), (EXE_PATH, EXE_EXTENSIONS), (TEMP_PATH, TEMP_EXTENSIONS),
-                        (PROGRAMMING_PATH, PROGRAMMING_EXTENSIONS), (MISC_PATH, MISC_EXTENSIONS))
+
+PATHS_AND_EXTENSIONS = None
 
 
 # Keep ignoring file by its name (optimization)
@@ -62,23 +39,23 @@ def ignore(filename):
 # Creates directory from zip archive src in dst folder, then removes .zip file.
 # If something goes wrong, just moves an archive to dst folder
 def unzip(src, dst):
-    print(f'Unarchived {src}')
+    print_with_script_name(f'Unarchived {src}')
     try:
-        unpack_archive(f'{DOWNLOADS_PATH}\\{src}', extract_dir=f'{dst}\\{src.replace(src.split(".")[-1], "")}', format='zip')
+        unpack_archive(f'{DOWNLOADS_PATH}/{src}', extract_dir=f'{dst}/{src.replace(src.split(".")[-1], "")}', format='zip')
         remove(src)
     except Exception as e:
         move(src, dst)
-        print(f'{src} caused {str(e)}')
+        print_with_script_name(f'{src} caused {str(e)}')
 
 
 # Moves src file to dst folder
 def move(src, dst):
-    print(f'Moved {src}')
+    print_with_script_name(f'Moved {src}')
     # ignore(src)
     try:
-        shmove(f'{DOWNLOADS_PATH}\\{src}', dst)
+        shmove(f'{DOWNLOADS_PATH}/{src}', dst)
     except Exception as e:
-        print(f'{src} caused {e.__class__}')
+        print_with_script_name(f'{src} caused {e.__class__}')
 
 
 # Main method that checks for any available for moving files
@@ -90,10 +67,10 @@ def check():
             continue
         extension = file.split('.')[-1]
         path_to_copy = None
-        for path, extensions in PATHS_AND_EXTENSIONS:
-            if extension in extensions:
+        for item in PATHS_AND_EXTENSIONS:
+            if extension in item['extensions']:
                 is_archive = extension == 'zip'
-                path_to_copy = path
+                path_to_copy = item['path']
         if path_to_copy:
             if not is_archive:
                 move(file, path_to_copy)
@@ -108,38 +85,49 @@ def load_json_as_dict(path_to_json) -> dict:
         raw = str(f.read(8192))
     raw = raw.replace('%username%', username)
 
+    # TODO optimize
     raw_json = loads(raw)
     raw = raw.replace('%user_dir%', raw_json['USER_DIR_PATH'])
-    print(raw)
     raw_json = loads(raw)
     raw = raw.replace('%downloads_dir%', raw_json['DOWNLOADS_PATH'])
-
-
+    print_with_script_name('Config loaded')
     return loads(raw)
 
 
 def prepare_paths_and_extensions():
-    config = load_json_as_dict('downloads_manager_config.json')
-    print(config)
+    global DOWNLOADS_PATH, PATHS_AND_EXTENSIONS
+    config = load_json_as_dict(f'{dir_path}downloads_manager_config.json')
 
+    DOWNLOADS_PATH = config['DOWNLOADS_PATH']
+    PATHS_AND_EXTENSIONS = config['paths']
 
+import sys
 if __name__ == '__main__':
+    print_with_script_name("Welcome to Downloads Manager!")
+    print_with_script_name(f'Username:{username}')
     prepare_paths_and_extensions()
+
+    assert PATHS_AND_EXTENSIONS
+
     # Create directories that may be missing
-    for path, ext in PATHS_AND_EXTENSIONS:
+    for item in PATHS_AND_EXTENSIONS:
         try:
-            mkdir(path)
-            print(f"Created directory: {path}")
+            mkdir(item['path'])
+            print_with_script_name(f"Created directory: {item['path']}")
         except FileExistsError as e:
             pass
         except Exception as e:
-            print(f'Warning! Unknown error: {str(e)}')
+            print_with_script_name(f'Warning! Unknown error: {str(e)}')
 
     # Check if script is already running
-    remove(dir_path + 'run.txt')
-    recreate = open(dir_path + 'run.txt', 'w')
-    recreate.write('0x01110')
-
+    try:
+        remove(dir_path + 'run.txt')
+        recreate = open(dir_path + 'run.txt', 'w')
+        recreate.write('0x01110')
+    except PermissionError:
+        print_with_script_name("Error: script is already running. Shutting down")
+        exit()
+    i = 0
     while True:
         check()
         sleep(2)

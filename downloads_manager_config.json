@@ -1,26 +1,26 @@
 {
-  "USER_DIR_PATH": "C:\\Users\\%username%\\",
-  "DOWNLOADS_PATH": "%user_dir%Downloads\\",
+  "USER_DIR_PATH": "C:/Users/%username%/",
+  "DOWNLOADS_PATH": "%user_dir%Downloads/",
   "paths": [
     {
       "label" : "Images",
-      "path" : "%user_dir%OneDrive\\Изображения\\Downloaded",
+      "path" : "%user_dir%OneDrive/Изображения/Downloaded",
       "extensions" : ["jpg", "jpeg", "png", "bmp", "ico"]
     },
     {
       "label" : "Documents",
-      "path" : "%user_dir%OneDrive\\Documents\\Downloaded",
+      "path" : "%user_dir%OneDrive/Documents/Downloaded",
       "extensions" : ["pdf", "csv", "txt", "doc", "docx", "ppt", "pptx", "xls", "xlsx",
                         "accdb", "db", "html"]
     },
     {
       "label" : "Videos",
-      "path" : "%user_dir%Videos\\Downloaded",
+      "path" : "%user_dir%Videos/Downloaded",
       "extensions" : ["mp4", "avi", "mkv", "m4a"]
     },
     {
       "label" : "Music",
-      "path" : "%user_dir%Music\\Downloaded",
+      "path" : "%user_dir%Music/Downloaded",
       "extensions" : ["mp3", "ogg", "wav"]
     },
     {
